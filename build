@@ -139,6 +139,14 @@ if [ -d cert ]; then
 	container_mount_opts+=(-v "$PWD/cert:/builder/cert:ro")
 fi
 
+# On macOS with podman the VM kernel may lack AF_ALG crypto modules (e.g. algif_hash),
+# causing "Allocation of sha256/md5 cipher failed (ret=-93)" during disk image creation.
+# Running with --privileged gives the container access to the full VM kernel and fixes this.
+if [ "$(uname -s)" = "Darwin" ] && [ "$container_engine" = "podman" ]; then
+	container_run_opts+=(--privileged)
+	container_cmd=(--second-stage)
+fi
+
 # Check if builder apparmor profile has to be created or selected
 if [ "$container_engine" = "docker" ] \
 	&& [ ! "$apparmor_profile" ] \

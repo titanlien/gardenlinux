@@ -23,6 +23,15 @@ if [ "Darwin" == $build_os ]; then
         getopt_gnu="/opt/homebrew/opt/gnu-getopt/bin/getopt"
     fi
 
+    # (Home)Brew dynamic prefix path (e.g. custom Homebrew installations)
+    if [[ "$getopt_gnu" == "unset" ]] && command -v brew &>/dev/null; then
+        _brew_getopt="$(brew --prefix gnu-getopt 2>/dev/null)/bin/getopt"
+        if [[ -f "$_brew_getopt" ]]; then
+            getopt_gnu="$_brew_getopt"
+        fi
+        unset _brew_getopt
+    fi
+
     # MacPorts path
     if [[ -f "/opt/local/bin/getopt" ]]; then
         getopt_gnu="/opt/local/bin/getopt"
@@ -31,6 +40,7 @@ if [ "Darwin" == $build_os ]; then
     # Fail when we can not find any GNU getopt package
     if [ "unset" == $getopt_gnu ]; then
         echo "No GNU getopt binary for macOS found. Please make sure to install it by Brew or MacPorts." >&2
+        echo "  Homebrew: brew install gnu-getopt" >&2
         exit 1
     fi
 

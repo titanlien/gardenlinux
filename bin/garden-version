@@ -12,6 +12,9 @@ build_os="$(uname -s)"
 function check_command() {
   if ! command -v "$1" >/dev/null 2>&1; then
     echo "Error: The binary '$1' could not be found. Please make sure to install it." >&2
+    if [ "Darwin" == "$build_os" ]; then
+      echo "On macOS, install it via Homebrew: brew install gnu-sed coreutils" >&2
+    fi
     exit 1
   fi
 }
